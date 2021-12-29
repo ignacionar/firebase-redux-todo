@@ -1,3 +1,4 @@
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import './App.css';
 import { auth, getItems, insert, login, logout, update } from './firebase-util';
@@ -7,20 +8,15 @@ import { addTodos } from './redux/Todos/todo-actions';
 
 function App() {
 
-  const currentUserValues = useSelector(state => state.user.currentUser)
-  const todos = useSelector(state => state.todos.todos)
-  
-  console.log(todos)
-
-  console.log(currentUserValues);
-
+  const currentUserValues = useSelector(state => state.user.currentUser);
+  const todos = useSelector(state => state.todos.todos);
   const dispatch = useDispatch();
-
-  let currentUser;
 
   let inputText;
 
-  const passCurrentUser = (currentUser) => {
+  loadTodos()
+
+  const passCurrentUser = () => { // COMPROBAR LOGIN
     auth().onAuthStateChanged(user => {
       if (user) {
         console.log('User logged:', user.displayName)
@@ -31,16 +27,17 @@ function App() {
     });
   }
 
-  const buttonLogin = async (e) => {
+  const buttonLogin = async () => {
     try {
+      let currentUser;  
       currentUser = await login();
-      passCurrentUser(currentUser);
+      passCurrentUser();
     } catch (error) {console.log(error)}
   };
 
   const buttonLogout = async () => {
     logout();
-    dispatch(setCurrentUser(null))
+    dispatch(setCurrentUser(''))
   };
 
   const handlerSubmit = (e) => {
@@ -111,6 +108,7 @@ function App() {
       <div id="todos-container">
         { currentUserValues ?
           Object.entries(todos).map(([iN, todo]) => { 
+            console.log(todo)
             return (
             <li><input type="checkbox" id={todo.id} onClick={handlerCheck}/><span>{todo.text}</span></li>
           )
@@ -122,3 +120,5 @@ function App() {
 }
 
 export default App;
+
+
