@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import './App.css';
 import { auth, getItems, insert, login, logout, update } from './firebase-util';
@@ -6,15 +6,15 @@ import { setCurrentUser } from './redux/User/user-actions';
 import { getUUID } from './utils/getUUID';
 import { addTodos } from './redux/Todos/todo-actions';
 
+
 function App() {
 
   const currentUserValues = useSelector(state => state.user.currentUser);
   const todos = useSelector(state => state.todos.todos);
   const dispatch = useDispatch();
+  const [oldTodos, setOldTodos] = useState(false)
 
   let inputText;
-
-  loadTodos()
 
   const passCurrentUser = () => { // COMPROBAR LOGIN
     auth().onAuthStateChanged(user => {
@@ -38,6 +38,7 @@ function App() {
   const buttonLogout = async () => {
     logout();
     dispatch(setCurrentUser(''))
+    setOldTodos(false)
   };
 
   const handlerSubmit = (e) => {
@@ -82,6 +83,11 @@ function App() {
     }
   }
 
+  const handlerOldTodos = () => {
+    loadTodos()
+    setOldTodos(true)
+  }
+
   return (   
     <div className="App">
       <button id="button-login" onClick={() => buttonLogin()} hidden={currentUserValues}>Login with Google</button>
@@ -92,29 +98,37 @@ function App() {
           <>
             <img src={currentUserValues.photoURL} width={'32px'} alt='img'/>
             <span>{currentUserValues.displayName}</span>
+            {
+              !oldTodos ? <button onClick={handlerOldTodos}>Display my todos!</button> : ""
+            }
           </>
           : ""
         }
         </div>
-        <input
+        {
+          oldTodos ? <input
           id="todo-input"
           type="text"
           placeholder="Todo"
           autoComplete="off"
           onChange={(e) => {inputText = e.target.value}}
-        />
+        /> : ""
+        }
+        
       </form>
 
+      {
+        oldTodos ? 
       <div id="todos-container">
         { currentUserValues ?
           Object.entries(todos).map(([iN, todo]) => { 
-            console.log(todo)
             return (
             <li><input type="checkbox" id={todo.id} onClick={handlerCheck}/><span>{todo.text}</span></li>
           )
           }) : ""
         }  
-      </div>
+      </div> : ""
+      }
     </div>
   );
 }

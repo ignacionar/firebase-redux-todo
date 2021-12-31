@@ -1,4 +1,5 @@
-import { ADD_TODOS } from "./todo-actions";
+import { useSelector } from "react-redux";
+import { ADD_TODOS, INITIAL_TODOS } from "./todo-actions";
 
 const INITIAL_STATE = {
   todos: [],
@@ -11,7 +12,6 @@ const todoReducer = (state = INITIAL_STATE, action) => {
         ...state,
         todos: action.payload,
       };  
-
     default:
       return state;
   }
